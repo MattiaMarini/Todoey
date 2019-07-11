@@ -10,16 +10,31 @@ import UIKit
 
 class ToDoListViewController: UITableViewController {
     
-    var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
+   
     
-    let defaults = UserDefaults.standard
+    var myDictionary = [String : Bool]()
+        
+    var itemArray = [ItemDataModel]()
+    
+        let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        let newItem = ItemDataModel()
+        newItem.itemName = "Find Mike"
+        itemArray.append(newItem)
         
-        if let items = defaults.array(forKey: "ToDoListArray") as? [String] {
-            itemArray = items
+        let newItem2 = ItemDataModel()
+        newItem2.itemName = "Buy Eggos"
+        itemArray.append(newItem2)
+        
+        let newItem3 = ItemDataModel()
+        newItem3.itemName = "Destroy Demogorgon"
+        itemArray.append(newItem3)
+
+        if let items = defaults.array(forKey: "ToDoListArray") as? [ItemDataModel] {
+           itemArray = items
         }
         
     }
@@ -29,7 +44,22 @@ class ToDoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        cell.textLabel?.text = itemArray[indexPath.row]
+        let item = itemArray[indexPath.row]
+        
+        cell.textLabel?.text = item.itemName
+        
+        /*
+        if item.done == true {
+            cell.accessoryType = .checkmark
+        } else {
+            cell.accessoryType = .none
+        }
+         Ternary operator
+         value = condition (if Bool, the true value is inferred, no need to specify it) ? valueIfTrue : valueIfFalse
+        */
+        
+        cell.accessoryType = item.done ? .checkmark : .none
+        
         
         return cell
     }
@@ -43,12 +73,19 @@ class ToDoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        //Checking if checkmark is already present, if it is, we take it off, if it is not, we put it in.
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        } else {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
+        /*
+         if itemArray[indexPath.row].done == true {
+         itemArray[indexPath.row].done = false
+         } else {
+         itemArray[indexPath.row].done = true
+         }
+         
+         set value as opposit of itself with " ! " before the value ==>
+         */
+        
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+            
+        tableView.reloadData()
         
     }
     
@@ -61,7 +98,9 @@ class ToDoListViewController: UITableViewController {
         //Creating popup
         let alert = UIAlertController(title: "Add New Item To List", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
-            self.itemArray.append(textField.text!)
+            let newItem = ItemDataModel()
+            newItem.itemName = textField.text!
+            self.itemArray.append(newItem)
 
             self.defaults.set(self.itemArray, forKey: "ToDoListArray")
             
