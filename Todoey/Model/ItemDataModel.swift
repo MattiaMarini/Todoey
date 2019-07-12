@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ItemDataModel {
+class ItemDataModel: Codable {
     
     var itemName : String = ""
     var done : Bool = false
