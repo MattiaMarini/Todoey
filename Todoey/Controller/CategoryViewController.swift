@@ -14,7 +14,7 @@ class CategoryViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        loadCategory()
+        loadCategories()
     }
 
     var categories = [Category]()
@@ -37,9 +37,24 @@ class CategoryViewController: UITableViewController {
         return categories.count
     }
     
+    //MARK: - TableView Delegate Methods
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "goToItems", sender: self)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let destinationVC = segue.destination as! ToDoListViewController
+        
+        if let indexPath = tableView.indexPathForSelectedRow {
+            destinationVC.selectedCategory = categories[indexPath.row]
+        }
+        
+    }
+    
     //MARK: - Data Manipulation Methods
     
-    func saveCategory() {
+    func saveCategories() {
         
         do {
             try  context.save()
@@ -47,6 +62,17 @@ class CategoryViewController: UITableViewController {
             print("Error saving category, \(error)")
         }
        tableView.reloadData()
+    }
+    
+    func loadCategories() {
+        
+        let request : NSFetchRequest<Category> = Category.fetchRequest()
+        
+        do {
+            try categories = context.fetch(request)
+        } catch  {
+            print("Error fetching category, \(error)")
+        }
     }
     
     //MARK: - Add New Categories
@@ -62,7 +88,7 @@ class CategoryViewController: UITableViewController {
             newCategory.name = textfield.text
             
             self.categories.append(newCategory)
-            self.saveCategory()
+            self.saveCategories()
     
         }
     
@@ -75,16 +101,8 @@ class CategoryViewController: UITableViewController {
     present(alert, animated: true, completion: nil)
         
     }
-    
-    func loadCategory(request: NSFetchRequest<Category> = Category.fetchRequest()) {
-        do {
-            try categories = context.fetch(request)
-        } catch  {
-            print("Error fetching category, \(error)")
-        }
-    }
-    
-    //MARK: - TableView Delegate Methods
+  
+
     
     
 }
